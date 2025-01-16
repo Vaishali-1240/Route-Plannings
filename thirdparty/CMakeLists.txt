@@ -1,89 +1,31 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 2.8.8)
 
-project(pugixml VERSION 1.9)
-
-option(BUILD_SHARED_LIBS "Build shared instead of static library" OFF)
-option(BUILD_TESTS "Build tests" OFF)
-option(USE_VERSIONED_LIBDIR "Use a private subdirectory to install the headers and libs" OFF)
-option(USE_POSTFIX "Use separate postfix for each configuration to make sure you can install multiple build outputs" OFF)
-
-set(BUILD_DEFINES "" CACHE STRING "Build defines")
-
-if(MSVC)
-	option(STATIC_CRT "Use static CRT libraries" OFF)
-
-	# Rewrite command line flags to use /MT if necessary
-	if(STATIC_CRT)
-		foreach(flag_var
-				CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE
-				CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO)
-			if(${flag_var} MATCHES "/MD")
-				string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
-			endif(${flag_var} MATCHES "/MD")
-		endforeach(flag_var)
-	endif()
-endif()
-
-# Pre-defines standard install locations on *nix systems.
-include(GNUInstallDirs)
-mark_as_advanced(CLEAR CMAKE_INSTALL_LIBDIR CMAKE_INSTALL_INCLUDEDIR)
-
-set(HEADERS src/pugixml.hpp src/pugiconfig.hpp)
-set(SOURCES src/pugixml.cpp)
-
-if(DEFINED BUILD_DEFINES)
-	foreach(DEFINE ${BUILD_DEFINES})
-		add_definitions("-D" ${DEFINE})
-	endforeach()
-endif()
-
-if(BUILD_SHARED_LIBS)
-	add_library(pugixml SHARED ${HEADERS} ${SOURCES})
+if (CMAKE_VERSION VERSION_LESS "3.1")
+  add_definitions(-std=c++11)
 else()
-	add_library(pugixml STATIC ${HEADERS} ${SOURCES})
+  set(CMAKE_CXX_STANDARD 11)
+  set(CMAKE_CXX_STANDARD_REQUIRED ON)
+  set(CMAKE_CXX_EXTENSIONS OFF)
 endif()
 
-# Export symbols for shared library builds
-if(BUILD_SHARED_LIBS AND MSVC)
-	target_compile_definitions(pugixml PRIVATE "PUGIXML_API=__declspec(dllexport)")
-endif()
+if (POLICY CMP0048)
+  cmake_policy(SET CMP0048 NEW)
+endif (POLICY CMP0048)
 
-# Enable C++11 long long for compilers that are capable of it
-if(NOT ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} STRLESS 3.1 AND ";${CMAKE_CXX_COMPILE_FEATURES};" MATCHES ";cxx_long_long_type;")
-	target_compile_features(pugixml PUBLIC cxx_long_long_type)
-endif()
+project(googletest-distribution)
+set(GOOGLETEST_VERSION 1.9.0)
 
-set_target_properties(pugixml PROPERTIES VERSION ${PROJECT_VERSION} SOVERSION ${PROJECT_VERSION_MAJOR})
+enable_testing()
 
-if(USE_VERSIONED_LIBDIR)
-	# Install library into its own directory under LIBDIR
-	set(INSTALL_SUFFIX /pugixml-${pugixml_VERSION})
-endif()
+include(CMakeDependentOption)
+include(GNUInstallDirs)
 
-target_include_directories(pugixml PUBLIC
-	$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/src>
-	$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}${INSTALL_SUFFIX}>)
+#Note that googlemock target already builds googletest
+option(BUILD_GMOCK "Builds the googlemock subproject" ON)
+option(INSTALL_GTEST "Enable installation of googletest. (Projects embedding googletest may want to turn this OFF.)" ON)
 
-if(USE_POSTFIX AND CMAKE_CONFIGURATION_TYPES)
-	set_target_properties(pugixml PROPERTIES DEBUG_POSTFIX "_d" MINSIZEREL_POSTFIX "_m" RELWITHDEBINFO_POSTFIX "_r")
-endif()
-
-install(TARGETS pugixml EXPORT pugixml-config
-	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}${INSTALL_SUFFIX}
-	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}${INSTALL_SUFFIX}
-	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-install(FILES ${HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}${INSTALL_SUFFIX})
-install(EXPORT pugixml-config DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/pugixml)
-
-configure_file(scripts/pugixml.pc.in ${PROJECT_BINARY_DIR}/pugixml.pc @ONLY)
-install(FILES ${PROJECT_BINARY_DIR}/pugixml.pc DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/pkgconfig)
-
-if(BUILD_TESTS)
-	file(GLOB TEST_SOURCES tests/*.cpp)
-	file(GLOB FUZZ_SOURCES tests/fuzz_*.cpp)
-	list(REMOVE_ITEM TEST_SOURCES ${FUZZ_SOURCES})
-
-	add_executable(check ${TEST_SOURCES})
-	target_link_libraries(check pugixml)
-	add_custom_command(TARGET check POST_BUILD COMMAND check WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+if(BUILD_GMOCK)
+  add_subdirectory( googlemock )
+else()
+  add_subdirectory( googletest )
 endif()

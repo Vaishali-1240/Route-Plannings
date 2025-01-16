@@ -1,72 +1,128 @@
-pugixml [![Build Status](https://travis-ci.org/zeux/pugixml.svg?branch=master)](https://travis-ci.org/zeux/pugixml) [![Build status](https://ci.appveyor.com/api/projects/status/9hdks1doqvq8pwe7/branch/master?svg=true)](https://ci.appveyor.com/project/zeux/pugixml) [![codecov.io](https://codecov.io/github/zeux/pugixml/coverage.svg?branch=master)](https://codecov.io/github/zeux/pugixml?branch=master) ![MIT](https://img.shields.io/badge/license-MIT-blue.svg)
-=======
 
-pugixml is a C++ XML processing library, which consists of a DOM-like interface with rich traversal/modification
-capabilities, an extremely fast XML parser which constructs the DOM tree from an XML file/buffer, and an XPath 1.0
-implementation for complex data-driven tree queries. Full Unicode support is also available, with Unicode interface
-variants and conversions between different Unicode encodings (which happen automatically during parsing/saving).
+# Google Test #
 
-pugixml is used by a lot of projects, both open-source and proprietary, for performance and easy-to-use interface.
+[![Build Status](https://api.travis-ci.org/abseil/googletest.svg?branch=master)](https://travis-ci.org/abseil/googletest)
+[![Build status](https://ci.appveyor.com/api/projects/status/4o38plt0xbo1ubc8/branch/master?svg=true)](https://ci.appveyor.com/project/GoogleTestAppVeyor/googletest/branch/master)
 
-## Documentation
-
-Documentation for the current release of pugixml is available on-line as two separate documents:
-
-* [Quick-start guide](https://pugixml.org/docs/quickstart.html), that aims to provide enough information to start using the library;
-* [Complete reference manual](https://pugixml.org/docs/manual.html), that describes all features of the library in detail.
-
-You’re advised to start with the quick-start guide; however, many important library features are either not described in it at all or only mentioned briefly; if you require more information you should read the complete manual.
-
-## Example
-
-Here's an example of how code using pugixml looks; it opens an XML file, goes over all Tool nodes and prints tools that have a Timeout attribute greater than 0:
-
-```c++
-#include "pugixml.hpp"
-#include <iostream>
-
-int main()
-{
-    pugi::xml_document doc;
-    pugi::xml_parse_result result = doc.load_file("xgconsole.xml");
-    if (!result)
-        return -1;
-        
-    for (pugi::xml_node tool: doc.child("Profile").child("Tools").children("Tool"))
-    {
-        int timeout = tool.attribute("Timeout").as_int();
-        
-        if (timeout > 0)
-            std::cout << "Tool " << tool.attribute("Filename").value() << " has timeout " << timeout << "\n";
-    }
-}
-```
-
-And the same example using XPath:
-
-```c++
-#include "pugixml.hpp"
-#include <iostream>
-
-int main()
-{
-    pugi::xml_document doc;
-    pugi::xml_parse_result result = doc.load_file("xgconsole.xml");
-    if (!result)
-        return -1;
-        
-    pugi::xpath_node_set tools_with_timeout = doc.select_nodes("/Profile/Tools/Tool[@Timeout > 0]");
-    
-    for (pugi::xpath_node node: tools_with_timeout)
-    {
-        pugi::xml_node tool = node.node();
-        std::cout << "Tool " << tool.attribute("Filename").value() <<
-            " has timeout " << tool.attribute("Timeout").as_int() << "\n";
-    }
-}
-```
+**Future Plans**:
+* 1.8.x Release - [the 1.8.x](https://github.com/google/googletest/releases/tag/release-1.8.1) is the last release that works with pre-C++11 compilers. The 1.8.x will not accept any requests for any new features and any bugfix requests will only be accepted if proven "critical"
+* Post 1.8.x - work to improve/cleanup/pay technical debt. When this work is completed there will be a 1.9.x tagged release
+* Post 1.9.x googletest will follow [Abseil Live at Head philosophy](https://abseil.io/about/philosophy)
 
 
-## License
+Welcome to **Google Test**, Google's C++ test framework!
 
-This library is available to anybody free of charge, under the terms of MIT License (see LICENSE.md).
+This repository is a merger of the formerly separate GoogleTest and
+GoogleMock projects. These were so closely related that it makes sense to
+maintain and release them together.
+
+Please the mailing list at googletestframework@googlegroups.com for questions, discussions, and development.  
+There is also an IRC channel on [OFTC](https://webchat.oftc.net/) (irc.oftc.net) #gtest available.  
+
+Getting started information for **Google Test** is available in the
+[Google Test Primer](googletest/docs/primer.md) documentation.
+
+**Google Mock** is an extension to Google Test for writing and using C++ mock
+classes.  See the separate [Google Mock documentation](googlemock/README.md).
+
+More detailed documentation for googletest (including build instructions) are
+in its interior [googletest/README.md](googletest/README.md) file.
+
+## Features ##
+
+  * An [xUnit](https://en.wikipedia.org/wiki/XUnit) test framework.
+  * Test discovery.
+  * A rich set of assertions.
+  * User-defined assertions.
+  * Death tests.
+  * Fatal and non-fatal failures.
+  * Value-parameterized tests.
+  * Type-parameterized tests.
+  * Various options for running the tests.
+  * XML test report generation.
+
+## Platforms ##
+
+Google test has been used on a variety of platforms:
+
+  * Linux
+  * Mac OS X
+  * Windows
+  * Cygwin
+  * MinGW
+  * Windows Mobile
+  * Symbian
+
+## Who Is Using Google Test? ##
+
+In addition to many internal projects at Google, Google Test is also used by
+the following notable projects:
+
+  * The [Chromium projects](http://www.chromium.org/) (behind the Chrome
+    browser and Chrome OS).
+  * The [LLVM](http://llvm.org/) compiler.
+  * [Protocol Buffers](https://github.com/google/protobuf), Google's data
+    interchange format.
+  * The [OpenCV](http://opencv.org/) computer vision library.
+  * [tiny-dnn](https://github.com/tiny-dnn/tiny-dnn): header only, dependency-free deep learning framework in C++11.
+
+## Related Open Source Projects ##
+
+[GTest Runner](https://github.com/nholthaus/gtest-runner) is a Qt5 based automated test-runner and Graphical User Interface with powerful features for Windows and Linux platforms.
+
+[Google Test UI](https://github.com/ospector/gtest-gbar) is test runner that runs
+your test binary, allows you to track its progress via a progress bar, and
+displays a list of test failures. Clicking on one shows failure text. Google
+Test UI is written in C#.
+
+[GTest TAP Listener](https://github.com/kinow/gtest-tap-listener) is an event
+listener for Google Test that implements the
+[TAP protocol](https://en.wikipedia.org/wiki/Test_Anything_Protocol) for test
+result output. If your test runner understands TAP, you may find it useful.
+
+[gtest-parallel](https://github.com/google/gtest-parallel) is a test runner that
+runs tests from your binary in parallel to provide significant speed-up.
+
+[GoogleTest Adapter](https://marketplace.visualstudio.com/items?itemName=DavidSchuldenfrei.gtest-adapter) is a VS Code extension allowing to view Google Tests in a tree view, and run/debug your tests.
+
+## Requirements ##
+
+Google Test is designed to have fairly minimal requirements to build
+and use with your projects, but there are some.  Currently, we support
+Linux, Windows, Mac OS X, and Cygwin.  We will also make our best
+effort to support other platforms (e.g. Solaris, AIX, and z/OS).
+However, since core members of the Google Test project have no access
+to these platforms, Google Test may have outstanding issues there.  If
+you notice any problems on your platform, please notify
+[googletestframework@googlegroups.com](https://groups.google.com/forum/#!forum/googletestframework). Patches for fixing them are
+even more welcome!
+
+### Linux Requirements ###
+
+These are the base requirements to build and use Google Test from a source
+package (as described below):
+
+  * GNU-compatible Make or gmake
+  * POSIX-standard shell
+  * POSIX(-2) Regular Expressions (regex.h)
+  * A C++11-standard-compliant compiler
+
+### Windows Requirements ###
+
+  * Microsoft Visual C++ 2015 or newer
+
+### Cygwin Requirements ###
+
+  * Cygwin v1.5.25-14 or newer
+
+### Mac OS X Requirements ###
+
+  * Mac OS X v10.4 Tiger or newer
+  * Xcode Developer Tools
+
+## Contributing change
+
+Please read the [`CONTRIBUTING.md`](CONTRIBUTING.md) for details on
+how to contribute to this project.
+
+Happy testing!
